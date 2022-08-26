@@ -106,8 +106,8 @@ Existing rules may need to be modified or replaced (e.g. HTTPS may be set to cus
  
 ```
  	Type		(Protocol)	Port Range	Source			(to)
-1.	HTTPS	TCP	TCP		443		Anywhere IPV4	        0.0.0.0/0
-2. 	Custom TCP	TCP		8080		Anywhere IPV4	        0.0.0.0/0
+1.	HTTPS	TCP	TCP		443		Anywhere IPV4	0.0.0.0/0
+2. 	Custom TCP	TCP		8080		Anywhere IPV4	0.0.0.0/0
 3. 	SSH		TCP		22		Custom	 		0.0.0.0/0
 ```
 
@@ -123,6 +123,26 @@ Done.
 
 ### Go back to the instances tab
 
+
+
+# Note!
+
+The exact ports you need to select (e.g. 8080 vs. 8050) etc, may depend on what you are doing, and on how your project is configured (flask, dash, fast-api, etc.)
+
+For plotly dash you may need to use 8050 and use this line in your app.run command:
+
+```
+if __name__ == '__main__':
+    app.run_server(host= '0.0.0.0',port=80)
+```
+
+And you may need to add a port suffix after the ipv4URL you get from AWS.
+#### In these working examples, plotly-dash's port 8050 was added to the end of the original url.
+```
+http://3.94.153.137:8050/
+or
+http://ec2-3-94-153-137.compute-1.amazonaws.com:8050/ 
+```
 
 # Web Connect
 
@@ -174,4 +194,14 @@ You are effectively done, but you may want to run these lines, e.g. if you are g
 ```
 $ sudo yum update -y
 $ sudo yum install git -y
+```
+
+# Reminder
+
+You may need to add a port suffix after the ipv4URL you get from AWS.
+#### In these working examples, plotly-dash's port 8050 was added to the end of the original url.
+```
+http://3.94.153.137:8050/
+or
+http://ec2-3-94-153-137.compute-1.amazonaws.com:8050/ 
 ```
