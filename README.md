@@ -2,6 +2,7 @@
 
 # Instructions to set up public AWS EC2 
 e.g. to host a flask server, dashboard, REST api endpoint, etc.
+(See picture version as pdf in repo, pictures may help!)
 
 ### Go to: AWS
 https://us-east-1.console.aws.amazon.com 
@@ -108,8 +109,8 @@ Existing rules may need to be modified or replaced (e.g. HTTPS may be set to cus
 1.	HTTPS	TCP	TCP		443		Anywhere IPV4	0.0.0.0/0
 2. 	Custom TCP	TCP		8080		Anywhere IPV4	0.0.0.0/0
 3. 	SSH		TCP		22		Custom	 		0.0.0.0/0
-
 ```
+
 
 
 
