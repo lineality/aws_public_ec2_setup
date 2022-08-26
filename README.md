@@ -20,7 +20,6 @@ the instances tab
 
 
 
-
 ## Launch Instance:
 	Hit the big orange button that says "Launch instances" 
 (plural...for some reason...which of course takes to you "launch an instance" singular)
@@ -29,8 +28,6 @@ the instances tab
 
 
 # "launch an instance" singular
-
-
 
 
 ## Configure:
@@ -44,7 +41,7 @@ the instances tab
 1. firewall security group: create or select
 2. "Allow SSH traffic from": must be on to use EC2 connect later (or SSH in yourself)
 3. "Allow HTTPs traffic from the internet": If you want this to be public, allow.
-4. http: maybe leave insecure http off.
+4. http may be needed in the mess of aws connection issues, leave it on for now
 
 
 
@@ -53,19 +50,25 @@ the instances tab
 7. Advanced details Info -> ignore
 8. Summary -> nothing to do or change here, examine if you want.
 
+
+
+
+
+
+
+
+
+
+
+
 ## Select: Launch Instance
 
 
-
-
-## click on blue random string .... (obviously!...?)
-
-
+## Click on the blue random string .... (obviously...?)
 
 ## Back at instances window: 
 your instance should now be highlighted: click on "connect" to connect via web 
 This is much easier that local-cli ssh (web connect is one of the few actually useful working advances AWS has made. 
-
 
 
 # configure in "security"
@@ -78,19 +81,20 @@ This is much easier that local-cli ssh (web connect is one of the few actually u
 ## Another random blue-string-click
 In the "Security" tab, under "security groups" (plural?) you see a random blue-string-link. click on that (to configure networking...obviously...)
 
-
-
-
 ## "Inbound rules" You are here!
 Finally: This is the basic, rudimentary, necessary, "start here" configuration menu that all this has been leading up to (and should have started with), yet for some obscene reason AWS makes it impossible to even find. 
 
 
 
 
+
+
+
+
+
+
+
 ### Click "edit inbound rules"
-
-
-
 
 
 
@@ -116,12 +120,24 @@ Existing rules may need to be modified or replaced (e.g. HTTPS may be set to cus
 
 
 
+
+
+
 Another example rule set:
 
 
 Done.
 
 ### Go back to the instances tab
+
+
+
+
+
+
+
+
+
 
 
 
@@ -187,7 +203,6 @@ in the "EC2 Instance Connect" tab...
 
 
 
-
 ### Optional steps
 You are effectively done, but you may want to run these lines, e.g. if you are going to get files from github
 
@@ -205,3 +220,18 @@ http://3.94.153.137:8050/
 or
 http://ec2-3-94-153-137.compute-1.amazonaws.com:8050/ 
 ```
+
+
+
+
+
+
+## Example:
+EC2 deployed plotly dash app viewed in browser via public access setup:
+
+
+
+
+
+# Resources:
+- https://stackoverflow.com/questions/67166003/dash-app-not-working-when-deployed-on-amazon-ec2-instance 
