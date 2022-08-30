@@ -1,69 +1,112 @@
-#### aws_public_ec2_setup
+#### public_aws_ec2_setup
+Production Server AWS EC2 Public Access Network Setup Community Plotly Dash
+
+#### With the repos:
+- Minimal https://github.com/lineality/mvp_production_wsgi_plotly_dash_ec2 
+- Geomap https://github.com/lineality/geomap_production_wsgi_plotly_dash_ec2/
+
 
 # Publicly Accessible AWS EC2
 
-The main goal of this article is creating and configuring an AWS EC2 instance (basically a cloud-computer, a web-server, that potentially is open to the public) (and configuring that) to be indeed open to the public. Aside from security, one of the main factors determining how things can and should be done is what project this is for and what software this EC2 cloud-computer/server needs to run. Another factor is whether the software is ~free to use, or whether you will be using a proprietary service. The focus here is still getting you to the main goal finding the "Edit inbound rules" screen in AWS (which is tragically buried and not easy to find even though it should be the obvious front-and-center part of EC2 configuration).
+The main goal of this article is creating and configuring an AWS EC2 instance (basically a cloud-computer, a web-server, that potentially is open to the public) (and configuring that) to be indeed open to the public AND using a production server (not a testing-only server). So the main goal here are the first steps of a public production server in EC2, but with an eye on the next step of what you are actually going to do with it. However, there is so much possible variation (depending on context) for that second step that only limited help for that will be possible here. The ec2 network configuration guide here will probably apply most places, but there will be only one example of a gunicorn wsgi production server for plotly dash. This is particularly hard to find instructions for online, but this guide will step you through. Other flask, fast-api projects have many online guides and better documentation. 
+ 
+#### The first milestone to focus on is getting to the 'inbound rules' for your ec2.
+The "Edit inbound rules" screen in AWS is tragically buried and not easy to find even though it should be the obvious front-and-center part of EC2 configuration. But you can do it!
 
 
 
-But once you get to this holey-grail setup screen...what exactly should this be set to? You may need to try a few things and test what works. And please test it, do not just assume you will be able to connect or just rely on whatever documentation you might be trying to follow. Deploying a rest-api-endpoint is different from deploying a graphical interactive dashboard; for me this project is focused on the graphical interactive dashboard deployment. 
+But once you get to this holey-grail setup screen...what exactly should this be set to? You may need to try a few things and test what works. And please do test and experiment, do not just assume whomever will be able to connect or just rely on whatever documentation you might be trying to follow. 
 
-Is this for ~production, or "only" for development and testing?
-- running the
+# Production Server:
+There will be two production deploy examples here, a super-mvp production server for easy testing and extrapolation, and a more visually functional geo-map using open-street view. 
 
-The set of choices and options become tangled rather quickly. 
 
-django 
-flask 
-fast-api 
 
-When you run flask or dash you get a warning saying that you should be using a production server, in particular a wsgi production server. 
 
-#### Choice: flask/dash vanilla vs. "production fancy" flask/dash
 
-#### Production Choices
-- flask -> apache2 web server (used to run most of internet)
-- flask -> ngnix  web server (increasingly runs most of internet)
-- flask -> wsgi web server (obscure)
-- flask -> gunicorn (obscure)
 
-For example: There are many articles online which describe how to host a flask web server on EC2. Yet while flask is very easy to run locally, and while plotly dash uses flask, and while flask can be set up in various was on 
 
-There may be several ways that one can create a public facing server (an endpoint, a dashboard, etc.) using EC2 (essentially a cheap mini-web-server with which you can do many things...if not easily...). 
 
-### Factors:
-1. Purpose & Tools
-2. Budget  
 
-Setting up an EC2 server for flask, or for a plotly dash dashboard, or for fastapi, or for django, or for a rest-api-endpoint (or some combination of those), can be different case-by-case. 
+For some reason the exact details are extremely important and there are many details that can go wrong. If what you are trying is not working, I recommend starting again completely from scratch. New instance, new settings, new everything. 
 
-### List of AWS EC2 Methods
-1. Simply hosting a micro-server directly (dash, flask, fast-api, etc)
-2. Intermediation "production" server:
-- WSGI Server
-- Apache Server
-- Nginx
-3. Docker + AWS
-- running docker in EC2
-- uploading a pre-built docker image (maybe not EC2?)
-- maybe some weird hybrid mix of things?
+It may seem non sequitur but I want to show you the code that works first. It is unclear to me why there is (as of 2022) no single place on the internet that shows a single working example or even a process or instructions for hosting plotly dash (probably the most universal dashboarding software) on EC2 (definitely the most common web services tool period). 
 
-The approach taken in this guide will be the direct-microserver-method. 
+The code/process is actually much simpler than other methods (which shall remain nameless). The source for this is technically plotly.com, but it is 10% from a larger heroku example they give (the ONLY example they give...why?) and then one critical last line buried in a help page (which also had to be modified).
 
-### Alternative AWS Services:
-- Lambda function
-- lambda function + api gateway
-- api + gateway
-- elastic beanstalk
-- lightsail
-- step function + anything above
+The file structure can be 'flat' with just two files (app.py and requirements.txt (which is optional)) and the venv env directory (which is also optional). 
 
-### Alternative NOT-AWS Services:
-- heroku
-- google cloud services
-- your own hardware server
+This method probably with works with "app-factory" proliferation of folders and files, but it does not require that.
 
-If you have lots of money and or specific needs, you may be best served by AWS's pre-built services. If you don't have lots of money, often working directly with EC2 (or lambda, etc.) is most practical. 
+## Minimal MVP app.py code (works)
+```
+Less minimal app.py code here:
+https://dash.plotly.com/deployment
++ 
+correct invocation line here:
+https://community.plotly.com/t/error-with-gunicorn-application-object-must-be-callable/31397 
+
+test invoke with: (but will end when your ec2 terminal session ends, resets, etc.)
+    $ gunicorn app:server --bind=0.0.0.0:8050
+
+For persistent production you will need: (end with kill process number) 
+    (ENV)$ nohup gunicorn app:server --bind=0.0.0.0:8050 &
+    or
+    (ENV)$ screen gunicorn app:server --bind=0.0.0.0:8050 &
+```
+
+# Import your Python Libraries (you may need boto3 for AWS)
+from dash import Dash, dcc, html, Input, Output
+import os
+
+# Connects Dash -> Flask (for wsgi/gunicorn production server)
+app = Dash(__name__)
+
+# needed for gunicorn/wsgi to connect
+server = app.server
+
+# Your visualization code goes here etc.
+app.layout = html.Div([
+    html.H2('Hello World')
+])
+
+if __name__ == '__main__':
+    app.run_server(host= '0.0.0.0', port=8050)
+
+```
+
+
+#### requirement.txt
+```
+dash
+plotly
+gunicorn
+```
+Note: here is an example of where the final list of packages will be longer when it includes all the dependencies, but all you need to install are these three.
+
+
+## Test Test Test
+
+As you modify the working code gradually to add in your own content, make sure to preserve the key parts of the code. Test as you go to make sure everything still works. These may include the following:
+
+
+#### needed for gunicorn/wsgi to connect
+```
+server = app.server
+```
+
+#### Closing Line
+```
+if __name__ == '__main__':
+    app.run_server(host= '0.0.0.0', port=8050)
+```
+
+#### Invocation from ec2 terminal
+```
+$ screen gunicorn app:server --bind=0.0.0.0:8050 & 
+```
+
+
 
 See: https://github.com/lineality/aws_rules_of_thumb_and_warnings 
 
@@ -167,9 +210,13 @@ Existing rules may need to be modified or replaced (e.g. HTTPS may be set to cus
  
 ```
  	Type		(Protocol)	Port Range	Source			(to)
-1.	HTTPS	TCP	TCP		443		Anywhere IPV4	0.0.0.0/0
-2. 	Custom TCP	TCP		8080		Anywhere IPV4	0.0.0.0/0
-3. 	SSH		TCP		22		Custom	 		0.0.0.0/0
+1.	HTTPS	TCP	TCP		80		Anywhere IPV4	0.0.0.0/0
+2.    HTTPS	TCP	TCP		443		Anywhere IPV6	::/0
+3. 	Custom TCP	TCP		8050		Anywhere IPV4	0.0.0.0/0
+4. 	SSH		TCP		22		Custom	 		0.0.0.0/0
+5.    HTTP	TCP	TCP		80		Anywhere IPV4	0.0.0.0/0
+6.    HTTP	TCP	TCP		443		Anywhere IPV6	::/0
+
 ```
 
 
@@ -197,7 +244,7 @@ For plotly dash you may need to use 8050 and use this line in your app.run comma
 
 ```
 if __name__ == '__main__':
-    app.run_server(host= '0.0.0.0',port=80)
+    app.run_server(host= '0.0.0.0',port=8050)
 ```
 
 And you may need to add a port suffix after the ipv4URL you get from AWS.
@@ -209,9 +256,22 @@ http://ec2-3-94-153-137.compute-1.amazonaws.com:8050/
 ```
 
 
+
+
 # Web Connect
 
-## click on "connect"
+Note: In order for the grey 'connect' button to be active (not ghost-grey), you will need to make sure you check the boxes and see a blue checkmark next to the EC2 you wish to connect to.
+
+(blue check box pic)
+
+
+
+
+## click "connect"
+Click on the grey "Connect" button.
+
+
+
 
 
 
@@ -249,13 +309,14 @@ $ sudo yum install git -y
 ```
 
 
-
-
-
-
-
 # Run server in EC2
 The code you run in your EC2 to start the server will likely look something like this:
+- update
+- install git
+- make your project folder
+- project files
+- project python env
+- run !!
 
 #### Steps:
 ```
@@ -263,38 +324,69 @@ $ sudo yum update -y
 
 $ sudo yum install git -y
 
-$ git clone https://github.com/lineality/plotly_dash_geomap_points_energy1.git
+$ mkdir viz; cd viz
+```
 
-$ mkdir viz; dc viz
 
-$ git clone https://github.com/lineality/plotly_dash_geomap_points_energy1.git
 
-$ cd plotly_dash_geomap_points_energy1
 
+#### Add Project Code
+Whether from github or just typed in on nano (fast enough), put your code in:
+```
+
+$ git clone https://github.com/lineality/mvp_production_wsgi_plotly_dash_ec2.git
+
+$ cd mvp_production_wsgi_plotly_dash_ec2
+
+or
+
+$ git clone https://github.com/lineality/geomap_production_wsgi_plotly_dash_ec2.git
+
+$ cd geomap_production_wsgi_plotly_dash_ec2
+
+or
+
+$ nano app.py
+
+$ nano requirements.txt
+```
+
+### Once you have your files uploaded or written:
+Using a venv env is recommended (if not technically required), e.g. linux base systems often have their own mix of python libraries pre-installed, and it's best to have a clean python system for your app where you know exactly what is installed. 
+
+```
 $ python3 -m venv env; source env/bin/activate
 
 (ENV)$ python3 -m pip install --upgrade pip
 
 (ENV)$ pip install -r requirements.txt
-
-(ENV)$ nohup python3 app.py &
-
 ```
 
-## Why 'in background'?
+## Why 'in background'? Persistence! 
 
-For 'testing only' you can run the flask server with:
+#### Test invoke with: 
+(but will end when your ec2 terminal session ends, resets, etc.)
 ```
-(ENV)$ python3 app.py
+    $ gunicorn app:server --bind=0.0.0.0:8050
 ```
 BUT this will stop when you end your terminal session. As long as your terminal is open you are fine (e.g. for you testing at that moment), but if you want anyone online to be able to access that server any time, then the server must be running 'in the background' (or whatever equivalent) so that the server does not shut down for everyone else as soon as you close your terminal. 
 
-To run your app in the background, use this:
+
+
+# Production
+
+Test and run-with-persistance using these. (I found 'screen' worked better but do whatever works for you.)
+
+
+
+#### For persistent production you will need: (end with kill process number) 
 ```
-(ENV)$ nohup python3 app.py &
-or
-(
+    (ENV)$ nohup gunicorn app:server --bind=0.0.0.0:8050 &
+    or
+    (ENV)$ screen gunicorn app:server --bind=0.0.0.0:8050 &
 ```
+
+
 
 The output may look like this (not the normal output saying what IP etc.)
 ```
@@ -302,12 +394,13 @@ The output may look like this (not the normal output saying what IP etc.)
 ```
 You may want to wait until you have tested etc. before you run this. 
 
+Screen will look different. You can refresh the whole connection (and test to make sure the dashboard server is still going in the 'background').
+
 
 ## Check Connection:
 
-
 #### Reminder:
-You may need to add a port suffix after the ipv4URL you get from AWS.
+You will probably need to add a port suffix after the ipv4URL you get from AWS.
 
 #### In these working examples, plotly-dash's port 8050 was added to the end of the original url.
 ```
@@ -316,7 +409,6 @@ http://3.94.153.137:8050/
 or
 http://ec2-3-94-153-137.compute-1.amazonaws.com:8050/ 
 ```
-
 
 
 ## See what processes are running:
@@ -353,6 +445,17 @@ More here https://linuxize.com/post/how-to-kill-a-process-in-linux/
 
 
 
+## Test Only Example (not Production)
+I recommend simply using a wsgi/gunicorn production method, but if for some reason you want to use the not-production server (complete with warnings to not use it), then experiment with this:
+```
+$ git clone https://github.com/lineality/plotly_dash_geomap_points_energy1.git
+$ cd plotly_dash_geomap_points_energy1
+
+(ENV)$ nohup python3 app.py &
+or
+(ENV)$ screen python3 app.py &
+```
+
 ## Example:
 EC2 deployed plotly dash app viewed in browser via public access setup:
 
@@ -381,6 +484,65 @@ You can view your live application by appending 8080 to your public IPv4Public I
 5. https://github.com/TPhil10/Bourbonhuntr 
 
 
+
+## Some Main Factors in Context
+Aside from security, one of the main factors determining how things can and should be done is what project this is for and what software this EC2 cloud-computer/server needs to run. Another factor is whether that software is ~free to use, or whether you will be using a proprietary service. Deploying a rest-api-endpoint is different from deploying a graphical interactive dashboard; for me this project is focused on the graphical interactive dashboard deployment. 
+
+The set of choices and options become tangled rather quickly. 
+
+django 
+flask 
+fast-api 
+
+When you run flask or dash you get a warning saying that you should be using a production server, in particular a wsgi production server. 
+
+#### Choice: flask/dash vanilla vs. "production fancy" flask/dash
+
+#### Production Choices
+- flask -> apache2 web server (used to run most of internet)
+- flask -> ngnix  web server (increasingly runs most of internet)
+- flask -> wsgi web server (obscure)
+- flask -> gunicorn (obscure)
+
+For example: There are many articles online which describe how to host a flask web server on EC2. Yet while flask is very easy to run locally, and while plotly dash uses flask, and while flask can be set up in various was on 
+
+There may be several ways that one can create a public facing server (an endpoint, a dashboard, etc.) using EC2 (essentially a cheap mini-web-server with which you can do many things...if not easily...). 
+
+### Factors:
+1. Purpose & Tools
+2. Budget  
+
+Setting up an EC2 server for flask, or for a plotly dash dashboard, or for fastapi, or for django, or for a rest-api-endpoint (or some combination of those), can be different case-by-case. 
+
+### List of AWS EC2 Methods
+1. Simply hosting a micro-server directly (dash, flask, fast-api, etc)
+2. Intermediation "production" server:
+- WSGI Server
+- Apache Server
+- Nginx
+3. Docker + AWS
+- running docker in EC2
+- uploading a pre-built docker image (maybe not EC2?)
+- maybe some weird hybrid mix of things?
+
+The approach taken in this guide will be the direct-microserver-method. 
+
+### Alternative AWS Services:
+- Lambda function
+- lambda function + api gateway
+- api + gateway
+- elastic beanstalk
+- lightsail
+- step function + anything above
+
+### Alternative NOT-AWS Services:
+- heroku
+- google cloud services
+- your own hardware server
+
+If you have lots of money and or specific needs, you may be best served by AWS's pre-built services. If you don't have lots of money, often working directly with EC2 (or lambda, etc.) is most practical. 
+
+
 # Readings
 1. Flask: Deploy to Production
 https://flask.palletsprojects.com/en/2.2.x/tutorial/deploy/ 
@@ -406,3 +568,7 @@ https://www.freecodecamp.org/news/linux-list-processes-how-to-check-running-proc
 
 8. End a process
 https://linuxize.com/post/how-to-kill-a-process-in-linux/
+
+9. gUnicorn
+https://dash.plotly.com/deployment
+https://community.plotly.com/t/error-with-gunicorn-application-object-must-be-callable/31397
