@@ -1,6 +1,11 @@
 #### public_aws_ec2_setup
 Production Server AWS EC2 Public Access Network Setup Community Plotly Dash
 
+- See pdf with screenshots for instructions steps
+- markdown: https://github.com/lineality/aws_public_ec2_setup 
+
+- Maybe easy for eyes and ears: https://medium.com/@GeoffreyGordonAshbrook/plotly-dash-in-ec2-production-server-502717843efb 
+
 #### With the repos:
 - Minimal https://github.com/lineality/mvp_production_wsgi_plotly_dash_ec2 
 - Geomap https://github.com/lineality/geomap_production_wsgi_plotly_dash_ec2/
@@ -53,7 +58,7 @@ For persistent production you will need: (end with kill process number)
     (ENV)$ nohup gunicorn app:server --bind=0.0.0.0:8050 &
     or
     (ENV)$ screen gunicorn app:server --bind=0.0.0.0:8050 &
-```
+
 
 # Import your Python Libraries (you may need boto3 for AWS)
 from dash import Dash, dcc, html, Input, Output
@@ -107,7 +112,6 @@ $ screen gunicorn app:server --bind=0.0.0.0:8050 &
 ```
 
 
-
 See: https://github.com/lineality/aws_rules_of_thumb_and_warnings 
 
 # Instructions to set up public AWS EC2 
@@ -129,10 +133,6 @@ https://us-east-1.console.aws.amazon.com
 ### Go to: EC2
 https://us-east-1.console.aws.amazon.com/ec2/ 
 
-
-
-
-
 ### Go to: instances
 the instances tab
 
@@ -148,7 +148,6 @@ the instances tab
 # "launch an instance" singular
 
 
-
 ## Configure:
 1. Name and tags -> clear meaningful name, nothing is too obvious. recommended format: "ec2_purpose_yourname_datetime"
 2. Application and OS Images (Amazon Machine Image) -> default amazon linux
@@ -161,6 +160,9 @@ the instances tab
 2. "Allow SSH traffic from": must be on to use EC2 connect later (or SSH in yourself)
 3. "Allow HTTPs traffic from the internet": If you want this to be public, allow.
 4. http may be needed in the mess of aws connection issues, leave it on for now
+
+
+
 
 
 ###  Network settings (continued...)
@@ -191,14 +193,6 @@ Finally: This is the basic, rudimentary, necessary, "start here" configuration m
 
 
 ### Click "edit inbound rules"
-
-
-
-
-
-
-
-
 
 ### Make and save new rules.
 Using the following tool (which you should see now), 
@@ -267,32 +261,16 @@ Note: In order for the grey 'connect' button to be active (not ghost-grey), you 
 
 
 
+
+
+
 ## click "connect"
 Click on the grey "Connect" button.
-
-
-
-
-
-
-
-
 
 ### In the 'connect to instance' window
 in the "EC2 Instance Connect" tab...
 
-
-
-
-
-
 ### Click on "Connect" (the big orange button)...(dejavu?)
-
-
-
-
-
-
 
 
 
@@ -365,18 +343,16 @@ $ python3 -m venv env; source env/bin/activate
 ## Why 'in background'? Persistence! 
 
 #### Test invoke with: 
-(but will end when your ec2 terminal session ends, resets, etc.)
+( But the server will end when your ec2 terminal session ends, resets, etc. ! )
 ```
     $ gunicorn app:server --bind=0.0.0.0:8050
 ```
 BUT this will stop when you end your terminal session. As long as your terminal is open you are fine (e.g. for you testing at that moment), but if you want anyone online to be able to access that server any time, then the server must be running 'in the background' (or whatever equivalent) so that the server does not shut down for everyone else as soon as you close your terminal. 
 
 
-
-# Production
+# Production -> Persistance
 
 Test and run-with-persistance using these. (I found 'screen' worked better but do whatever works for you.)
-
 
 
 #### For persistent production you will need: (end with kill process number) 
@@ -385,7 +361,6 @@ Test and run-with-persistance using these. (I found 'screen' worked better but d
     or
     (ENV)$ screen gunicorn app:server --bind=0.0.0.0:8050 &
 ```
-
 
 
 The output may look like this (not the normal output saying what IP etc.)
