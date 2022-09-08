@@ -204,10 +204,10 @@ Existing rules may need to be modified or replaced (e.g. HTTPS may be set to cus
  
 ```
  	Type		(Protocol)	Port Range	Source			(to)
-1.	HTTPS	TCP	TCP		80		Anywhere IPV4	0.0.0.0/0
+1.    HTTPS	TCP	TCP		80		Anywhere IPV4	0.0.0.0/0
 2.    HTTPS	TCP	TCP		443		Anywhere IPV6	::/0
-3. 	Custom TCP	TCP		8050		Anywhere IPV4	0.0.0.0/0
-4. 	SSH		TCP		22		Custom	 		0.0.0.0/0
+3.    Custom TCP	TCP		8050		Anywhere IPV4	0.0.0.0/0
+4.    SSH		TCP		22		Custom	 IPV4 	0.0.0.0/0
 5.    HTTP	TCP	TCP		80		Anywhere IPV4	0.0.0.0/0
 6.    HTTP	TCP	TCP		443		Anywhere IPV6	::/0
 
